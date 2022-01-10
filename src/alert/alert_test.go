@@ -1,6 +1,7 @@
 package alert
 
 import (
+	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -51,13 +52,38 @@ func TestReadFromFile_Invalid(t *testing.T) {
 	assert.Error(t, err)
 }
 
-/**
+func TestAlert_JSONMarshal(t *testing.T) {
+	alert, err := ReadFromFile(YAML_001)
+	assert.NoError(t, err)
 
-title: Logback vulnerability
-description: The logback team announced a vuln in logback versions
-link: https://scm-manager.org/blog/posts/2021-12-13-log4shell/
-issuedAt: 2021-12-13
-affectedVersions: <2.27.3
+	data, err := json.Marshal(&alert)
+	assert.NoError(t, err)
 
+	nodes := make(map[string]string)
+	err = json.Unmarshal(data, &nodes)
+	assert.NoError(t, err)
 
-*/
+	assert.Equal(t, "Logback vulnerability", nodes["title"])
+	assert.Equal(t, "The logback team announced a vuln in logback versions", nodes["description"])
+	assert.Equal(t, "https://scm-manager.org/blog/posts/2021-12-13-log4shell/", nodes["link"])
+	assert.Equal(t, "2021-12-13", nodes["issuedAt"])
+	assert.Equal(t, "<2.27.3", nodes["affectedVersions"])
+}
+
+func TestAlert_JSONUnmarshal(t *testing.T) {
+	alert, err := ReadFromFile(YAML_001)
+	assert.NoError(t, err)
+
+	data, err := json.Marshal(&alert)
+	assert.NoError(t, err)
+
+	alert = Alert{}
+	err = json.Unmarshal(data, &alert)
+	assert.NoError(t, err)
+
+	assert.Equal(t, "Logback vulnerability", alert.Title)
+	assert.Equal(t, "The logback team announced a vuln in logback versions", alert.Description)
+	assert.Equal(t, "https://scm-manager.org/blog/posts/2021-12-13-log4shell/", alert.Link)
+	assert.Equal(t, "2021-12-13", alert.IssuedAt.Format("2006-01-02"))
+	assert.Equal(t, "<2.27.3", alert.AffectedVersions.Value)
+}

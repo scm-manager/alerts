@@ -15,9 +15,9 @@ type Alerts map[string][]Alert
 func ReadFromDirectory(directoryPath string) (Alerts, error) {
 	alerts := make(Alerts)
 
-	coreAlerts, err := read(directoryPath)
+	coreAlerts, err := readAlertsFromDirectory(directoryPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to read core alerts")
+		return nil, errors.Wrap(err, "Failed to readAlertsFromDirectory core alerts")
 	}
 	alerts[CORE] = coreAlerts
 
@@ -28,9 +28,9 @@ func ReadFromDirectory(directoryPath string) (Alerts, error) {
 	}
 
 	for _, plugin := range plugins {
-		pluginAlerts, err := read(path.Join(pluginDirectory, plugin.Name()))
+		pluginAlerts, err := readAlertsFromDirectory(path.Join(pluginDirectory, plugin.Name()))
 		if err != nil {
-			return nil, errors.Wrapf(err, "Failed to read %s alerts", plugin.Name())
+			return nil, errors.Wrapf(err, "Failed to readAlertsFromDirectory %s alerts", plugin.Name())
 		}
 		if pluginAlerts != nil {
 			alerts[plugin.Name()] = pluginAlerts
@@ -40,7 +40,7 @@ func ReadFromDirectory(directoryPath string) (Alerts, error) {
 	return alerts, nil
 }
 
-func read(directory string) ([]Alert, error) {
+func readAlertsFromDirectory(directory string) ([]Alert, error) {
 	alertDirectory := path.Join(directory, "alerts")
 
 	if _, err := os.Stat(alertDirectory); os.IsNotExist(err) {
@@ -49,7 +49,7 @@ func read(directory string) ([]Alert, error) {
 
 	files, err := ioutil.ReadDir(alertDirectory)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to read directory %s", directory)
+		return nil, errors.Wrapf(err, "Failed to readAlertsFromDirectory directory %s", directory)
 	}
 
 	var alerts []Alert
@@ -58,7 +58,7 @@ func read(directory string) ([]Alert, error) {
 			alertPath := path.Join(alertDirectory, f.Name())
 			alert, err := ReadFromFile(alertPath)
 			if err != nil {
-				return nil, errors.Wrapf(err, "Failed to read alert %s", alertPath)
+				return nil, errors.Wrapf(err, "Failed to readAlertsFromDirectory alert %s", alertPath)
 			}
 
 			alerts = append(alerts, alert)
