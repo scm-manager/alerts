@@ -24,6 +24,8 @@ func main() {
 	}
 
 	router := http.NewServeMux()
+	router.Handle("/ready", api.CreateOkEndpoint())
+	router.Handle("/live", api.CreateOkEndpoint())
 	router.Handle("/api/v1/alerts", api.CreateAlertsEndpoint(alerts))
 
 	log.Println("start http server on 8080 ...")
