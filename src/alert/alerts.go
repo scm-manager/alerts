@@ -28,12 +28,21 @@ func ReadFromDirectory(directoryPath string) (Alerts, error) {
 	}
 
 	for _, plugin := range plugins {
-		pluginAlerts, err := readAlertsFromDirectory(path.Join(pluginDirectory, plugin.Name()))
+		directory := path.Join(pluginDirectory, plugin.Name())
+
+		s, err := os.Stat(directory)
 		if err != nil {
-			return nil, errors.Wrapf(err, "Failed to readAlertsFromDirectory %s alerts", plugin.Name())
+			return nil, errors.Wrapf(err, "Failed to read stats from file %s", directory)
 		}
-		if pluginAlerts != nil {
-			alerts[plugin.Name()] = pluginAlerts
+
+		if s.IsDir() {
+			pluginAlerts, err := readAlertsFromDirectory(directory)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Failed to readAlertsFromDirectory %s alerts", plugin.Name())
+			}
+			if pluginAlerts != nil {
+				alerts[plugin.Name()] = pluginAlerts
+			}
 		}
 	}
 
