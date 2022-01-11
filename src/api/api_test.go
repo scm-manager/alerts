@@ -236,6 +236,8 @@ func TestAlertsEndpoint_ServeHTTPWithoutPluginVersion(t *testing.T) {
 }
 
 func TestAlertsEndpoint_ServeHTTPCollectMetrics(t *testing.T) {
+	alertsRequestCounter.Reset()
+
 	body := alertsRequest{
 		InstanceId: "42",
 		Version:    alert.MustParseVersion("2.28.0"),

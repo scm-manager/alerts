@@ -55,15 +55,13 @@ pipeline {
         branch 'main'
       }
       steps {
-        sh 'rm -rf content'
-        sh 'mkdir content'
-        // TODO
-        authGit '???', 'clone https://github.com/scm-manager/website'
+        dir("website") {
+          git changelog: false, poll: false, branch: 'master', url: 'https://github.com/scm-manager/website'
+        }
         sh 'mkdir -p website/content/alerts'
         script {
-          image = docker.build "scmmanager/alerts:${version}"
-          // TODO
-          docker.withRegistry('scmmanager/alerts', 'gcloud-docker') {
+          def image = docker.build "scmmanager/alerts:${version}"
+          docker.withRegistry('', 'hub.docker.com-cesmarvin') {
             image.push()
           }
         }
@@ -76,36 +74,32 @@ pipeline {
       }
       agent {
         docker {
-          image 'ghcr.io/cloudogu/helm:3.4.2-1'
-          args '--entrypoint=""'
-          reuseNode true
+          image 'lachlanevenson/k8s-helm:v3.2.1'
+          args  '--entrypoint=""'
         }
       }
       steps {
-        // TODO
+        withCredentials([file(credentialsId: 'helm-client-scm-manager', variable: 'KUBECONFIG')]) {
+          sh "helm upgrade --install --set image.tag=${version} alerts helm/alerts"
+        }
       }
     }
 
   }
 
+  post {
+    failure {
+      mail to: "scm-team@cloudogu.com",
+        subject: "${JOB_NAME} - Build #${BUILD_NUMBER} - ${currentBuild.currentResult}!",
+        body: "Check console output at ${BUILD_URL} to view the results."
+    }
+  }
+
 }
 
-def image
 String version
 
 String computeVersion() {
   def commitHashShort = sh(returnStdout: true, script: 'git rev-parse --short HEAD')
   return "${new Date().format('yyyyMMddHHmm')}-${commitHashShort}".trim()
-}
-
-void commit(String message) {
-  sh "git -c user.name='Jenkins' -c user.email='jenkins@cloudogu.com' commit -m '${message}'"
-}
-
-void authGit(String credentials, String command) {
-  withCredentials([
-    usernamePassword(credentialsId: credentials, usernameVariable: 'AUTH_USR', passwordVariable: 'AUTH_PSW')
-  ]) {
-    sh "git -c credential.helper=\"!f() { echo username='\$AUTH_USR'; echo password='\$AUTH_PSW'; }; f\" ${command}"
-  }
 }
