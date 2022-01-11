@@ -33,13 +33,8 @@ func TestReadFromFile_AffectedVersionsAsRange(t *testing.T) {
 
 	r := alert.AffectedVersions
 
-	c, err := r.Contains("2.27.1")
-	assert.NoError(t, err)
-	assert.True(t, c)
-
-	c, err = r.Contains("2.28.0")
-	assert.NoError(t, err)
-	assert.False(t, c)
+	assert.True(t, r.Contains(MustParseVersion("2.27.1")))
+	assert.False(t, r.Contains(MustParseVersion("2.28.0")))
 }
 
 func TestReadFromFile_NotExisting(t *testing.T) {
