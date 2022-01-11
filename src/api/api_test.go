@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/scm-manager/alerts/src/alert"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -232,4 +233,32 @@ func TestAlertsEndpoint_ServeHTTPWithoutPluginVersion(t *testing.T) {
 
 	response := requestAlerts(t, make(alert.Alerts), body)
 	assert.Equal(t, http.StatusBadRequest, response.StatusCode)
+}
+
+func TestAlertsEndpoint_ServeHTTPCollectMetrics(t *testing.T) {
+	body := alertsRequest{
+		InstanceId: "42",
+		Version:    alert.MustParseVersion("2.28.0"),
+		Os:         "Linux",
+		Arch:       "amd64",
+		Java:       "1.8.0_121",
+		Plugins: []plugin{{
+			Name:    "scm-review-plugin",
+			Version: alert.MustParseVersion("1.2.1"),
+		}},
+	}
+
+	callAlertsEndpoint(t, make(alert.Alerts), body)
+
+	counter, err := alertsRequestCounter.GetMetricWithLabelValues("42", alert.CORE, "2.28.0", "Linux", "amd64", "1.8.0_121")
+	assert.NoError(t, err)
+
+	v := testutil.ToFloat64(counter)
+	assert.Equal(t, 1.0, v)
+
+	counter, err = alertsRequestCounter.GetMetricWithLabelValues("42", "scm-review-plugin", "1.2.1", "Linux", "amd64", "1.8.0_121")
+	assert.NoError(t, err)
+
+	v = testutil.ToFloat64(counter)
+	assert.Equal(t, 1.0, v)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/scm-manager/alerts/src/alert"
 	"github.com/scm-manager/alerts/src/api"
 	"log"
@@ -26,7 +27,9 @@ func main() {
 	router := http.NewServeMux()
 	router.Handle("/ready", api.CreateOkEndpoint())
 	router.Handle("/live", api.CreateOkEndpoint())
-	router.Handle("/api/v1/alerts", api.CreateAlertsEndpoint(alerts))
+	router.Handle("/metrics", promhttp.Handler())
+
+	router.Handle("/api/v1/alerts", api.InstrumentHandler(api.CreateAlertsEndpoint(alerts)))
 
 	log.Println("start http server on 8080 ...")
 	log.Println("")

@@ -40,7 +40,16 @@ type AlertsEndpoint struct {
 	validator *validator.Validator
 }
 
-func (ae *AlertsEndpoint) collectAlerts(name string, version alert.Version) []alert.Alert {
+func (ae *AlertsEndpoint) collectAlerts(request alertsRequest, name string, version alert.Version) []alert.Alert {
+	alertsRequestCounter.WithLabelValues(
+		request.InstanceId,
+		name,
+		version.String(),
+		request.Os,
+		request.Arch,
+		request.Java,
+	).Inc()
+
 	var alerts []alert.Alert
 
 	for _, a := range ae.alerts[name] {
@@ -53,11 +62,11 @@ func (ae *AlertsEndpoint) collectAlerts(name string, version alert.Version) []al
 }
 
 func (ae *AlertsEndpoint) findAlerts(request alertsRequest) alertsResponse {
-	coreAlerts := ae.collectAlerts(alert.CORE, request.Version)
+	coreAlerts := ae.collectAlerts(request, alert.CORE, request.Version)
 
 	var plugins []pluginAlerts
 	for _, p := range request.Plugins {
-		alerts := ae.collectAlerts(p.Name, p.Version)
+		alerts := ae.collectAlerts(request, p.Name, p.Version)
 		plugins = append(plugins, pluginAlerts{Name: p.Name, Alerts: alerts})
 	}
 
