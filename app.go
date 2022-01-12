@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/cors"
 	"github.com/scm-manager/alerts/src/alert"
 	"github.com/scm-manager/alerts/src/api"
 	"log"
@@ -29,7 +30,7 @@ func main() {
 	router.Handle("/live", api.CreateOkEndpoint())
 	router.Handle("/metrics", promhttp.Handler())
 
-	router.Handle("/api/v1/alerts", api.InstrumentHandler(api.Cors(api.CreateAlertsEndpoint(alerts))))
+	router.Handle("/api/v1/alerts", api.InstrumentHandler(cors.Default().Handler(api.CreateAlertsEndpoint(alerts))))
 
 	log.Println("start http server on 8080 ...")
 	log.Println("")
