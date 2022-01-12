@@ -10,8 +10,8 @@ type Alert struct {
 	Title            string       `json:"title"`
 	Description      string       `json:"description"`
 	Link             string       `json:"link"`
-	IssuedAt         IssuedAt     `yaml:"issuedAt" json:"issuedAt"`
-	AffectedVersions VersionRange `yaml:"affectedVersions" json:"affectedVersions"`
+	IssuedAt         IssuedAt     `json:"issuedAt" yaml:"issuedAt"`
+	AffectedVersions VersionRange `json:"affectedVersions" yaml:"affectedVersions"`
 }
 
 func ReadFromFile(filePath string) (Alert, error) {

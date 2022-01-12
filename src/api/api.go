@@ -26,13 +26,13 @@ type alertsRequest struct {
 }
 
 type pluginAlerts struct {
-	Name   string
-	Alerts []alert.Alert
+	Name   string        `json:"name"`
+	Alerts []alert.Alert `json:"alerts"`
 }
 
 type alertsResponse struct {
-	Alerts  []alert.Alert
-	Plugins []pluginAlerts
+	Alerts  []alert.Alert  `json:"alerts"`
+	Plugins []pluginAlerts `json:"plugins"`
 }
 
 type AlertsEndpoint struct {
