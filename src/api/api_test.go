@@ -60,7 +60,7 @@ func TestAlertsEndpoint_ServeHTTP(t *testing.T) {
 		Version:    alert.MustParseVersion("2.27.1"),
 		Os:         "Linux",
 		Arch:       "amd64",
-		Java:       "1.8.0_121",
+		Jre:        "1.8.0_121",
 	}
 
 	responseBody := callAlertsEndpoint(t, alerts, body)
@@ -78,7 +78,7 @@ func TestAlertsEndpoint_ServeHTTPNoAlertsAtAll(t *testing.T) {
 		Version:    alert.MustParseVersion("2.27.1"),
 		Os:         "Linux",
 		Arch:       "amd64",
-		Java:       "1.8.0_121",
+		Jre:        "1.8.0_121",
 	}
 
 	responseBody := callAlertsEndpoint(t, alerts, body)
@@ -100,7 +100,7 @@ func TestAlertsEndpoint_ServeHTTPCoreRangeDoesNotMatch(t *testing.T) {
 		Version:    alert.MustParseVersion("2.28.0"),
 		Os:         "Linux",
 		Arch:       "amd64",
-		Java:       "1.8.0_121",
+		Jre:        "1.8.0_121",
 	}
 
 	responseBody := callAlertsEndpoint(t, alerts, body)
@@ -123,7 +123,7 @@ func TestAlertsEndpoint_ServeHTTPPlugins(t *testing.T) {
 		Version:    alert.MustParseVersion("2.28.0"),
 		Os:         "Linux",
 		Arch:       "amd64",
-		Java:       "1.8.0_121",
+		Jre:        "1.8.0_121",
 		Plugins: []plugin{{
 			Name:    "scm-review-plugin",
 			Version: alert.MustParseVersion("1.2.1"),
@@ -183,7 +183,7 @@ func TestAlertsEndpoint_ServeHTTPWithoutInstanceId(t *testing.T) {
 		Version:    alert.MustParseVersion("2.0.0"),
 		Os:         "Linux",
 		Arch:       "amd64",
-		Java:       "9",
+		Jre:        "9",
 	}
 
 	response := requestAlerts(t, make(alert.Alerts), body)
@@ -195,7 +195,7 @@ func TestAlertsEndpoint_ServeHTTPWithoutVersion(t *testing.T) {
 	body["instanceId"] = "42"
 	body["os"] = "Windows"
 	body["arch"] = "arm"
-	body["java"] = "14"
+	body["jre"] = "14"
 
 	response := requestAlerts(t, make(alert.Alerts), body)
 	assert.Equal(t, http.StatusBadRequest, response.StatusCode)
@@ -207,7 +207,7 @@ func TestAlertsEndpoint_ServeHTTPWithoutPluginName(t *testing.T) {
 		Version:    alert.MustParseVersion("2.0.0"),
 		Os:         "Linux",
 		Arch:       "amd64",
-		Java:       "9",
+		Jre:        "9",
 		Plugins:    []plugin{{Version: alert.MustParseVersion("1.0.0")}},
 	}
 
@@ -228,7 +228,7 @@ func TestAlertsEndpoint_ServeHTTPWithoutPluginVersion(t *testing.T) {
 	body["version"] = "2.0.0"
 	body["os"] = "Windows"
 	body["arch"] = "arm"
-	body["java"] = "14"
+	body["jre"] = "14"
 	body["plugins"] = plugins
 
 	response := requestAlerts(t, make(alert.Alerts), body)
@@ -243,7 +243,7 @@ func TestAlertsEndpoint_ServeHTTPCollectMetrics(t *testing.T) {
 		Version:    alert.MustParseVersion("2.28.0"),
 		Os:         "Linux",
 		Arch:       "amd64",
-		Java:       "1.8.0_121",
+		Jre:        "1.8.0_121",
 		Plugins: []plugin{{
 			Name:    "scm-review-plugin",
 			Version: alert.MustParseVersion("1.2.1"),

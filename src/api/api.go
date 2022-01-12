@@ -21,7 +21,7 @@ type alertsRequest struct {
 	Version    alert.Version `json:"version" validate:"nondefault"`
 	Os         string        `json:"os"`
 	Arch       string        `json:"arch"`
-	Java       string        `json:"java"`
+	Jre        string        `json:"jre"`
 	Plugins    []plugin      `json:"plugins"`
 }
 
@@ -47,7 +47,7 @@ func (ae *AlertsEndpoint) collectAlerts(request alertsRequest, name string, vers
 		version.String(),
 		request.Os,
 		request.Arch,
-		request.Java,
+		request.Jre,
 	).Inc()
 
 	var alerts []alert.Alert
