@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
@@ -106,6 +107,8 @@ func (ae *AlertsEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	go ae.sendToStatsApi(err, data)
+
 	err = ae.validator.Validate(requestBody)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to validate request: %v", err), http.StatusBadRequest)
@@ -125,6 +128,13 @@ func (ae *AlertsEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, err = w.Write(data)
 	if err != nil {
 		log.Println("Failed to write response", err)
+	}
+}
+
+func (ae *AlertsEndpoint) sendToStatsApi(err error, data []byte) {
+	_, err = http.Post("http://stats-api/api/v1/alerts", "application/json", bytes.NewReader(data))
+	if err != nil {
+		log.Printf("Could not send request to stats-api: %s", err)
 	}
 }
 
