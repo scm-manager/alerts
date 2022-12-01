@@ -61,7 +61,7 @@ pipeline {
         sh 'mkdir -p website/content/alerts'
         script {
           def image = docker.build "scmmanager/alerts:${version}"
-          docker.withRegistry('', 'hub.docker.com-cesmarvin') {
+          docker.withRegistry('', 'cesmarvin-dockerhub-access-token') {
             image.push()
           }
         }
