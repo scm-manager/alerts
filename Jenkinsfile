@@ -68,7 +68,7 @@ pipeline {
       }
     }
 
-    stage('Deployment') {
+    stage('Deploy') {
       when {
         branch 'main'
       }
@@ -82,6 +82,15 @@ pipeline {
         withCredentials([file(credentialsId: 'helm-client-scm-manager', variable: 'KUBECONFIG')]) {
           sh "helm upgrade --install --set image.tag=${version} alerts helm/alerts"
         }
+      }
+    }
+    
+    stage('Push to GitHub') {
+      when {
+        branch 'main'
+      }
+      steps {
+        authGit 'cesmarvin', "push -f --tags https://github.com/scm-manager/alerts HEAD:main" 
       }
     }
 
@@ -103,3 +112,12 @@ String computeVersion() {
   def commitHashShort = sh(returnStdout: true, script: 'git rev-parse --short HEAD')
   return "${new Date().format('yyyyMMddHHmm')}-${commitHashShort}".trim()
 }
+
+void authGit(String credentials, String command) {
+  withCredentials([
+    usernamePassword(credentialsId: credentials, usernameVariable: 'AUTH_USR', passwordVariable: 'AUTH_PSW')
+  ]) {
+    sh "git -c credential.helper=\"!f() { echo username='\$AUTH_USR'; echo password='\$AUTH_PSW'; }; f\" ${command}"
+  }
+}
+
