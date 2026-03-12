@@ -29,7 +29,7 @@ pipeline {
     stage('Tests') {
       agent {
         docker {
-          image 'golang:1.17.5'
+          image 'golang:1.26.1'
           reuseNode true
         }
       }
@@ -41,7 +41,7 @@ pipeline {
     stage('Build') {
       agent {
         docker {
-          image 'golang:1.17.5'
+          image 'golang:1.26.1'
           reuseNode true
         }
       }

@@ -1,7 +1,7 @@
-FROM alpine:3.15.0
-
+FROM alpine:3.23.3
 
 RUN apk add --no-cache wget ca-certificates \
+ && apk add --no-cache --upgrade zlib \
  && adduser -S -s /bin/false -D -H -u 1000 alerts
 
 COPY alerts /alerts
